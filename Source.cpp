@@ -2,18 +2,13 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <bitset>
 using namespace std;
 
-class QInt {
-private:
-	int data[4];
+#define MAX 128
 
-public:
-	void ScanQInt(QInt &data)
-	{
-		
-	}
-
+struct QInt {
+	unsigned int data[4] = {0};
 };
 
 //char String_Mod_2(string str)
@@ -22,6 +17,7 @@ public:
 //	int ketqua = so % 2;
 //
 //}
+
 
 char Int_Sang_Char(int x)
 {
@@ -155,11 +151,78 @@ void String_Chia_2(string str,string &phanDu,string &phanNguyen)
 	}
 }
 
-void Doi_Sang_Nhi_Phan(string str)
+void LaySoBu1(int ketQua[])
 {
-	int temp[128] = { 0 };
+	for (int i = 0; i < MAX; i++)
+	{
+		if (ketQua[i] == 0)
+		{
+			ketQua[i] = 1;
+		}
+		else
+		{
+			ketQua[i] = 0;
+		}
+	}
+}
+
+void LaySoBu2(int ketQua[])
+{
+	LaySoBu1(ketQua);
+	for (int i = 0; i < MAX; i++)
+	{
+		cout << ketQua[i];
+	}
+	cout << endl;
+	int soDu = 0;
+	if (ketQua[MAX - 1] == 1)
+	{
+		ketQua[MAX - 1] = 0;
+		soDu = 1;
+	}
+	else if (ketQua[MAX - 1] == 0)
+	{
+		ketQua[MAX-1]=1;
+	}
+	for (int i = MAX-2; i >=0; i--)
+	{
+		if (ketQua[i] == 1 && soDu == 1)
+		{
+			ketQua[i] = 0;
+			soDu = 1;
+		}
+		else if (ketQua[i] == 0 && soDu == 1)
+		{
+			ketQua[i] = 1;
+			soDu = 0;
+		}
+		else if (ketQua[i] == 0 && soDu == 0)
+		{
+			ketQua[i] = 0;
+		}
+		else if (ketQua[i] == 1 && soDu == 0)
+		{
+			ketQua[i] = 1;
+		}
+	}
+	for (int i = 0; i < MAX; i++)
+	{
+		cout << ketQua[i];
+	}
+}
+
+void Doi_Sang_Nhi_Phan(string str,int ketQua[])
+{
+	int temp[MAX] = { 0 };
 	int i = 0;
 	string PhanNguyen, PhanDu;
+	bool flag = false; // kiểm tra có phải là số âm
+	char x = str[0];
+	if (x == '-')
+	{
+		flag = true;
+		str.erase(0, 1);
+	}
 	while (1)
 	{
 		String_Chia_2(str, PhanDu, PhanNguyen);
@@ -177,28 +240,43 @@ void Doi_Sang_Nhi_Phan(string str)
 			i++;
 		}
 	}
-	int ketQua[128]; 
 	int j = 0;
-	for (int i = 127; i >= 0; i--)
+	for (int i = MAX-1; i >= 0; i--)
 	{
 		ketQua[j] = temp[i];
 		j++;
 	}
-	for (int i = 0; i<128; i++)
+	
+	if (flag == true)
 	{
-		cout << ketQua[i];
+		LaySoBu2(ketQua);
 	}
 }
-
+void ScanfQInt(QInt &number, int dayNhiPhan[])
+{
+	for (int i = 0; i < MAX; i++)
+	{
+		if (dayNhiPhan[i] == 1)
+		{
+			number.data[i / 32] = number.data[i / 32] | (1 << (32 - 1 - i%32));
+		}
+	}
+	cout << endl;
+	cout <<bitset<32>(number.data[3]) << endl;  //in ra dãy bit
+}
 int main()
 {
-	//QInt number;
-	string s="2000100002";
-	//string s = "262060115229";
+	QInt number;
+	/*string s = "8793278316383117319";
 	string a, b;
-	String_Chia_2(s, b, a);
-	cout << a << " " << b;
-	//Doi_Sang_Nhi_Phan(s);
+	int dayNhiPhan[MAX];
+	Doi_Sang_Nhi_Phan(s,dayNhiPhan);
+	ScanfQInt(number, dayNhiPhan);*/
+	string s = "-8793278316383117319";
+	string a, b;
+	int dayNhiPhan[MAX];
+	Doi_Sang_Nhi_Phan(s, dayNhiPhan);
+	ScanfQInt(number, dayNhiPhan);
 	system("pause");
 	return 0;
 }
