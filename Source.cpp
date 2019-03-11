@@ -237,7 +237,7 @@ void PrintQInt(QInt number)
 	cout << endl;
 	//Tu mang nhi phan a chuyen sang so thap phan
 	string decNum;
-	for (int i = 60; i<MAX; i++)
+	for (int i = 0; i<MAX; i++)
 	{
 		if (a[i] == 1)
 		{
