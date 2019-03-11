@@ -1,359 +1,265 @@
-﻿#include <iostream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <bitset>
+
+#include <iostream>
+#include<string>
+#include<bitset>
+
 using namespace std;
-
 #define MAX 128
-
-struct QInt {
-	unsigned int data[4] = {0};
-};
-
-
-char Int_Sang_Char(int x)
+typedef struct
 {
-	if (x == 1)
+	uint32_t data[4];
+}QInt;
+void xuat(int*a)
+{
+	for (int i = 0; i < MAX; i++)
 	{
-		return '1';
+		cout << a[i];
 	}
-	else if (x == 2)
-	{
-		return '2';
-	}
-	else if (x == 3)
-	{
-		return '3';
-	}
-	else if (x == 4)
-	{
-		return '4';
-	}
-	else if (x == 5)
-	{
-		return '5';
-	}
-	else if (x == 6)
-	{
-		return '6';
-	}
-	else if (x == 7)
-	{
-		return '7';
-	}
-	else if (x == 8)
-	{
-		return '8';
-	}
-	else if (x == 9)
-	{
-		return '9';
-	}
-	else if (x == 0)
-	{
-		return '0';
-	}
+	cout << endl;
 }
 
-void String_Chia_2(string str,string &phanDu,string &phanNguyen)
+int stringToNum(char c)     // chuyen char sang so
 {
-	
-	int n =str.size();
-	if (n == 1 && str[n-1] == '1')
+	return c - '0';
+}
+
+char numToString(int n)     // chuyen so sang char
+{
+	return (char)(n + 48);
+}
+//ten ham da bieu thi tat ca:))
+string chia2(string bigInt)
+{
+
+	string tmp;
+	unsigned short int i = 0, j = 0, k = 0;
+	tmp.resize(bigInt.length());
+	if (bigInt[0] - '0' < 2)
 	{
-		phanNguyen = "0";
-		phanDu = "1";
-		return;
+		i = 1;
+		j = 10;
+	}
+	for (; i < bigInt.length(); i++)
+	{
+		tmp[k++] = ((bigInt[i] - '0' + j) / 2 + '0');
+		j = ((bigInt[i] - 48 + j) % 2) * 10;
+	}
+	tmp.resize(k);
+	return tmp;
+}
+// Ham lay bu 1
+int* bu1(int* a)
+{
+	static int tmp[MAX];
+	for (int i = 0; i < MAX; i++)
+	{
+		tmp[i] = (a[i] == 1) ? 0 : 1;
+	}
+	return tmp;
+}
+
+
+
+//Ham lay bu 2
+int* bu2(int* a)
+{
+	a = bu1(a);
+	int soDu = 1;
+	static int bu2[MAX] = { 0 };
+	for (int i = MAX - 1; i >= 0; i--)
+	{
+		if (a[i] == 0 && soDu == 1)
+		{
+			bu2[i] = 1;
+			soDu = 0;
+		}
+		else if (a[i] == 1 && soDu == 0)
+		{
+			bu2[i] = 1;
+		}
+	}
+
+	return bu2;
+}
+
+
+
+//Ham dao nguoc mang (sau khi chia 2 thi he nhi phan la lay so du tu duoi len)
+int* reverse(int *a)
+{
+	static int rev_arr[MAX] = { 0 };
+	for (int i = 0; i < MAX; i++)
+	{
+		rev_arr[i] = a[MAX - i - 1];
+	}
+	return rev_arr;
+}
+
+//ham chuyen tu thap phan sang nhi phan
+int* DecToBin(string userInputStr)
+{
+	int binary[MAX] = { 0 };
+
+	bool IsSigned = false;
+	if (userInputStr[0] == '-')
+	{
+		IsSigned = true;
+		userInputStr.erase(0, 1);
+	}
+
+	for (unsigned short int i = 0; userInputStr.length() != 0; i++)
+	{
+		if ((userInputStr[userInputStr.length() - 1] - 48) % 2 != 0) {
+			binary[i] = 1;
+			userInputStr[userInputStr.length() - 1] -= 1;
+		}
+		else binary[i] = 0;
+		userInputStr = chia2(userInputStr);
+	}
+	int* res = reverse(binary);
+
+	if (IsSigned)
+	{
+		res = bu2(res);
+	}
+	return res;
+
+}
+//ham khoi tao tat ca cac gia tri trong struct data = 0, nghia la cho tat ca cac bit trong mang la 0
+void initQInt(QInt& x)
+{
+	for (uint32_t i = 0; i < 4; i++)
+		x.data[i] = 0;
+}
+
+//Ham nhap so QInt, con thieu cai doc File, ko biet cho 2 tham so co dc ko
+void ScanQInt(QInt &number, string userInputStr)
+{
+	initQInt(number);
+
+	int* binArr = DecToBin(userInputStr);
+
+	for (int i = 0; i < MAX; i++)
+	{
+		if (binArr[i] == 1)
+		{
+			number.data[i / 32] = number.data[i / 32] | (1 << (32 - 1 - i % 32));
+		}
+	}
+
+}
+
+
+string nhan2(string bigInt)
+{
+	string res = "";
+	int len = bigInt.length();
+	int tmp = 0;
+
+	for (int i = len - 1; i >= 0; i--)
+	{
+		tmp = stringToNum(bigInt[i]) * 2 + tmp;
+		res.insert(0, 1, numToString(tmp % 10));//lay phan don vi cho vao string
+		tmp = tmp / 10;// lay phan chuc de tinh tiep
+	}
+	if (tmp > 0)  // Neu khac 0 thi bo them vao chuoi res
+	{
+		res.insert(0, 1, numToString(tmp));
+	}
+	return res;
+}
+
+string _2_mu_n(int n)
+{
+	string res = "1";
+	for (int i = 1; i <= n; i++)
+	{
+		res = nhan2(res);
+	}
+	return res;
+
+}
+
+void canBang2Chuoi(string& a, string& b)// cho do dai 2 chuoi bang nhau de cong 2 chuoi lai
+{
+	int a_len = a.length(), b_len = b.length();
+	if (a_len > b_len)
+	{
+		b.insert(0, a_len - b_len, '0');
 	}
 	else
 	{
-		// tìm phần dư của phép chia
-		string soCuoiString;
-		soCuoiString.push_back(str[n - 1]);  //lấy giá trị cuối cùng của chuổi string để kiểm tra
-		int soCuoi = stoi(soCuoiString); //chuyển sang số nguyên 
-		if (soCuoi % 2 == 0)
-		{
-			phanDu.push_back('0');
-		}
-		else
-		{
-			phanDu.push_back('1');
-		}
-
-		//tìm phần nguyên của phép chia
-		string soBiChia_Str;
-		int soBiChia_Int;
-		int i = 0;
-		int max = n;
-		int soDu = 0, soNguyen = 0;
-		soBiChia_Str.push_back(str[i]);
-		soBiChia_Int = stoi(soBiChia_Str);
-		while (i<n)
-		{
-			if (soBiChia_Int == 1 && i==0)
-			{
-				i++;
-				soBiChia_Str.push_back(str[i]);
-				soBiChia_Int = stoi(soBiChia_Str);
-			}
-			else if (soBiChia_Int >= 2)
-			{
-				soNguyen = soBiChia_Int / 2;
-				soDu = soBiChia_Int % 2;
-				char songuyen = Int_Sang_Char(soNguyen);
-				phanNguyen.push_back(songuyen);
-				soBiChia_Str.clear();
-				i++;
-				if (soDu == 0&& str[i] != '1' && str[i] != '0')
-				{
-					soBiChia_Str.push_back(str[i]);
-				}
-				else if (soDu == 0 && str[i] == '1')
-				{
-					phanNguyen.push_back('0');
-					soBiChia_Str.push_back('1');
-					i++;
-					soBiChia_Str.push_back(str[i]);
-				}
-				else if (soDu == 0 && str[i] == '0')
-				{
-					phanNguyen.push_back('0');
-					i++;
-					soBiChia_Str.push_back(str[i]);
-				}
-				else if(soDu != 0)
-				{
-					soBiChia_Str.push_back('1');
-					soBiChia_Str.push_back(str[i]);
-				}
-				if (i < n)
-				{
-					soBiChia_Int = stoi(soBiChia_Str);
-				}
-			}
-			else if (soBiChia_Int < 2)
-			{
-				phanNguyen.push_back('0');
-				i++;
-				soBiChia_Str.push_back(str[i]);
-				soBiChia_Int = stoi(soBiChia_Str);
-			}
-		}
+		a.insert(0, b_len - a_len, '0');
 	}
 }
 
-void LaySoBu1(int ketQua[])
+
+string operator+(string& a, string& b)
 {
-	for (int i = 0; i < MAX; i++)
+	string res = "";
+	canBang2Chuoi(a, b);
+	int len = a.length();
+
+	int tmp = 0;
+	for (int i = len - 1; i >= 0; i--)
 	{
-		if (ketQua[i] == 0)
-		{
-			ketQua[i] = 1;
-		}
-		else
-		{
-			ketQua[i] = 0;
-		}
+		tmp = stringToNum(a[i]) + stringToNum(b[i]) + tmp;
+		res.insert(0, 1, numToString(tmp % 10));
+		tmp /= 10;
 	}
+	if (tmp > 0)
+	{
+		res.insert(0, 1, numToString(tmp));
+	}
+	return res;
 }
+// Ham chuyen tu he nhi phan sang he thap phan
 
-void LaySoBu2(int ketQua[])
-{
-	LaySoBu1(ketQua);
-	for (int i = 0; i < MAX; i++)
-	{
-		cout << ketQua[i];
-	}
-	cout << endl;
-	int soDu = 0;
-	if (ketQua[MAX - 1] == 1)
-	{
-		ketQua[MAX - 1] = 0;
-		soDu = 1;
-	}
-	else if (ketQua[MAX - 1] == 0)
-	{
-		ketQua[MAX-1]=1;
-	}
-	for (int i = MAX-2; i >=0; i--)
-	{
-		if (ketQua[i] == 1 && soDu == 1)
-		{
-			ketQua[i] = 0;
-			soDu = 1;
-		}
-		else if (ketQua[i] == 0 && soDu == 1)
-		{
-			ketQua[i] = 1;
-			soDu = 0;
-		}
-		else if (ketQua[i] == 0 && soDu == 0)
-		{
-			ketQua[i] = 0;
-		}
-		else if (ketQua[i] == 1 && soDu == 0)
-		{
-			ketQua[i] = 1;
-		}
-	}
-	for (int i = 0; i < MAX; i++)
-	{
-		cout << ketQua[i];
-	}
-}
 
-void Doi_Sang_Nhi_Phan(string str,int ketQua[])
-{
-	int temp[MAX] = { 0 };
-	int i = 0;
-	string PhanNguyen, PhanDu;
-	bool flag = false; // kiểm tra có phải là số âm
-	char x = str[0];
-	if (x == '-')
-	{
-		flag = true;
-		str.erase(0, 1);
-	}
-	while (1)
-	{
-		String_Chia_2(str, PhanDu, PhanNguyen);
-		// điều kiện dừng là khi phần nguyên bằng 0 
-		if (PhanNguyen == "0")
-		{
-			temp[i] = stoi(PhanDu);
-			break;
-		}
-		else 
-		{
-			temp[i] = stoi(PhanDu);
-			str = PhanNguyen;
-			PhanNguyen.clear();
-			PhanDu.clear();
-			i++;
-		}
-	}
-
-	//đảo chiều dãy số nhị phân để đúng thứ tự
-	int j = 0;
-	for (int i = MAX-1; i >= 0; i--)
-	{
-		ketQua[j] = temp[i];
-		j++;
-	}
-
-	// nếu là số âm thì lấy giá trị bù 2
-	if (flag == true)
-	{
-		LaySoBu2(ketQua);
-	}
-}
-
-// hàm scanf Qint
-void ScanfQInt(QInt &number, int dayNhiPhan[])
-{
-	for (int i = 0; i < MAX; i++)
-	{
-		if (dayNhiPhan[i] == 1)
-		{
-			number.data[i / 32] = number.data[i / 32] | (1 << (32 - 1 - i%32));
-		}
-	}
-	cout << endl;
-	cout << bitset<32>(number.data[0]) << bitset<32>(number.data[1]) << bitset<32>(number.data[2]) << bitset<32>(number.data[3]) << endl;  //in ra dãy bit
-}
-
-string String_Nhan_2(string str)
-{
-	string ketQua;
-	int n = str.size();
-	int soDu=0;
-	string ch; //để lưu giá trị số nhân
-	int x;//để lưu giá trị số nhân ở dạng số nguyên
-	int result;// để lưu kết quả phép nhân
-	char temp;
-	for (int i = n - 1; i >= 0; i--)
-	{
-		ch = str[i];
-		x = stoi(ch);
-		result = x * 2;
-		if (result < 10)
-		{
-			if (soDu == 1)
-			{
-				result += 1;
-				soDu = 0;
-			}
-			temp=Int_Sang_Char(result);
-			ketQua.push_back(temp);
-		}
-		else
-		{
-			result = result % 10;
-			if (soDu == 1)
-			{
-				result += 1;
-			}
-			soDu = 1;
-			temp = Int_Sang_Char(result);
-			ketQua.push_back(temp);
-		}
-	}
-	if (soDu == 1)
-	{
-		ketQua.push_back('1');
-	}
-	n = ketQua.size();
-	for (int i = 0; i < n / 2; i++)
-	{
-		swap(ketQua[i], ketQua[n - 1 - i]);
-	}
-	return ketQua;
-}
-
-string _2_Mu_N(int n)
-{
-	string ketQua="1";
-	for (int i = 1; i <= n; i++)
-	{
-		ketQua = String_Nhan_2(ketQua);
-	}
-	return ketQua;
-}
-
-// hàm xuất số QInt 
+//ham xuat so QInt, xuat ra so he thap phan
 void PrintQInt(QInt number)
 {
-	int a[MAX] = {0};
+	//chuyen tu QInt sang mang a
+	int a[MAX] = { 0 };
 	for (int i = 0; i < MAX; i++)
 	{
-		if ((number.data[i/32] >> (32 - 1 - i%32)) & 1 == 1)
+		if ((number.data[i / 32] >> (32 - 1 - i % 32)) & 1 == 1)
 		{
 			a[i] = 1;
 		}
 	}
-	
-}
+	cout << endl;
 
+	for (int i = 0; i < MAX; i++)
+	{
+		cout << a[i];
+	}
+	cout << endl;
+	//Tu mang nhi phan a chuyen sang so thap phan
+	string decNum;
+	for (int i = 60; i<MAX; i++)
+	{
+		if (a[i] == 1)
+		{
+			string x = _2_mu_n(MAX - 1 - i);
+			decNum = decNum  +x;
+		}
+	}
+	cout << "\nSo chuyen sang he thap phan: ";
+	cout << decNum;
+}
 
 int main()
 {
+	string ss = "8793278316383117319";
+	//string s = "15";
+	int* res = DecToBin(ss);
+
 	QInt number;
-	/*string s = "8793278316383117319";
-	string a, b;
-	int dayNhiPhan[MAX];
-	Doi_Sang_Nhi_Phan(s,dayNhiPhan);
-	ScanfQInt(number, dayNhiPhan);
-	string s = "-9223372036854775807";
-	string a, b;
-	int dayNhiPhan[MAX];
-	Doi_Sang_Nhi_Phan(s, dayNhiPhan);
-	ScanfQInt(number, dayNhiPhan);
+	ScanQInt(number,ss);
+
 	PrintQInt(number);
-	*/
-	string s = "5";
-	string kq = _2_Mu_N(139);
-	cout << kq;
+
 	system("pause");
 	return 0;
 }
