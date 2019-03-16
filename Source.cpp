@@ -7,7 +7,7 @@ using namespace std;
 typedef struct
 {
 	unsigned int data[4];
-	bool isSigned = false; // kiem tra so am
+	// kiem tra so am
 }QInt;
 
 //ham khoi tao tat ca cac gia tri trong struct data = 0, nghia la cho tat ca cac bit trong mang la 0
@@ -102,13 +102,14 @@ array<int, MAX> reverse(array<int, MAX>a)
 }
 
 //ham chuyen tu thap phan sang nhi phan
-array<int, MAX> DecToBin(string userInputStr,bool &kiemTra)
+array<int, MAX> DecToBin(string userInputStr)
 {
 	array<int, MAX> binary = { 0 };
+	bool kiemTra = false;
 	if (userInputStr[0] == '-')
 	{
-		kiemTra = true;
 		userInputStr.erase(0, 1);
+		kiemTra = true;
 	}
 
 	for (unsigned short int i = 0; userInputStr.length() != 0; i++)
@@ -130,16 +131,12 @@ array<int, MAX> DecToBin(string userInputStr,bool &kiemTra)
 
 }
 
+
 //Ham nhap so QInt, con thieu cai doc File, ko biet cho 2 tham so co dc ko
 void ScanQInt(QInt &number, string userInputStr)
 {
 	initQInt(number);
-	bool kiemTra = false;
-	array<int, MAX> binArr = DecToBin(userInputStr,kiemTra);
-	if (kiemTra == true)
-	{
-		number.isSigned = true;
-	}
+	array<int, MAX> binArr = DecToBin(userInputStr);
 	for (int i = 0; i < MAX; i++)
 	{
 		if (binArr[i] == 1)
@@ -264,13 +261,15 @@ void Ham_Xoa_So_0_Dau_Chuoi(string &str)
 	str.erase(0, i);
 }
 
-string Bin_to_Dec(array<int, MAX>a,bool isSigned=false)
+string Bin_to_Dec(array<int, MAX>a)
 {
 	string decNum;
 	int i;
-	if (isSigned == true)
+	bool isSigned = false;
+	if (a[0] == 1)
 	{
 		i = 1;
+		isSigned = true;
 	}
 	else
 	{
@@ -302,7 +301,7 @@ void PrintQInt(QInt number)
 	a=QInt_To_Arr(number);
 	xuat(a);
 	//Tu mang nhi phan a chuyen sang so thap phan
-	string decNum = Bin_to_Dec(a,number.isSigned);
+	string decNum = Bin_to_Dec(a);
 	cout << "\nSo chuyen sang he thap phan: ";
 	if (decNum.size() == 0)
 	{
@@ -341,15 +340,23 @@ int viTriBit1(array<int,MAX> a, int viTriDangXet=0)
 	}
 	return -1;
 }
-
+bool IsSign(QInt num)
+{
+	array<int, MAX>a = QInt_To_Arr(num);
+	if (a[0] == 1)
+	{
+		return true;
+	}
+	return false;
+}
 
 bool operator < (const QInt& a, const QInt& b)
 {
-	if (a.isSigned == false && b.isSigned == true)
+	if (IsSign(a) == false && IsSign(b) == true)
 	{
 		return false;
 	}
-	else if (a.isSigned == true && b.isSigned == false)
+	else if (IsSign(a) == true && IsSign(b) == false)
 	{
 		return true;
 	}
@@ -441,7 +448,7 @@ bool operator >= (const QInt& a, const QInt& b)
 }
 //========================================================================================
 // operator + 
-
+// lấy giá trị tuyệt đối của QInt number 
 QInt Abs(QInt number)
 {
 	array<int, MAX> a;
@@ -480,24 +487,7 @@ QInt operator+(QInt number1, QInt number2)
 		}
 	}
 ;
-	number=Arr_To_QInt(res);
-	
-
-	if (number1.isSigned == true && number2.isSigned == true) 
-	{
-		number.isSigned = true;
-	}
-	else 
-	{
-		if (number1.isSigned == true && Abs(number1) > number2)
-		{
-			number.isSigned = true;
-		}
-		else if (number2.isSigned == true && Abs(number2) > number1)
-		{
-			number.isSigned = true;
-		}
-	}
+	number = Arr_To_QInt(res);
 	return number;
 }
 //
@@ -508,38 +498,307 @@ QInt operator+(QInt number1, QInt number2)
  //operator - 
 QInt operator-(QInt number1, QInt number2)
 {
-	
-	array<int, MAX> a;
-	a=QInt_To_Arr(number2);
-	a = bu2(a);
-	QInt number = Arr_To_QInt(a);
-	number.isSigned = !number.isSigned;
+	QInt number= Abs(number2);
 	return number1 + number;
+}
 
-	/*PrintQInt(number1);
-	PrintQInt(number2);
-	int a[MAX] = { 0 };
-	cout << endl;
-	QInt_Sang_Mang(number2, a);
-	xuat(a);*/
+//=============================================== test theo kiểu của Tường là sử dụng toàn string 
+string QInt_To_String(const QInt& number)
+{
+	string a;
+	for (int i = 0; i < MAX; i++)
+	{
+		if ((number.data[i / 32] >> (32 - 1 - i % 32)) & 1 == 1)
+		{
+			a.push_back('1');
+		}
+		else
+		{
+			a.push_back('0');
+		}
+	}
+	return a;
+}
+QInt String_To_QInt(const string& binArr)
+{
+
+	string _128bit = binArr;
+	int n = binArr.length();
+	if (n < 128)
+	{
+		_128bit.insert(0, 128 - n, '0');
+	}
+
+	QInt number;
+	initQInt(number);
+	for (int i = 0; i < 128; i++)
+	{
+		if (_128bit[i] == '1')
+		{
+			number.data[i / 32] = number.data[i / 32] | (1 << (32 - 1 - i % 32));
+		}
+	}
+	return number;
+}
+
+void dichPhaiString(string &str)
+{
+	bool kiemTra=false;
+	if (str[0] == '1')
+	{
+		kiemTra = true;
+	}
+	int n = str.size();
+	for (int i = n - 1; i >= 1; i--)
+	{
+		str[i] = str[i - 1];
+	}
+	if (kiemTra == true)
+	{
+		str[0] = '1';
+	}
+}
+
+//====================================================================================================
+// phep nhan
+
+
+QInt operator*(QInt number1, QInt number2)   
+{
+	string a=QInt_To_String(number1), b= QInt_To_String(number2);
+	int n = a.size();
+	int k = n;
+	string A, A_Q_Qo;
+	int i = 0;
+	QInt number;
+
+
+	//them n so 0 vao A;
+	for ( i ; i < n; i++)
+	{
+		A.push_back('0');
+	}
+	number = String_To_QInt(A);
+	A_Q_Qo += A;
+
+	// noi chuoi Q vao A_Q_Qo
+	A_Q_Qo += b;
+
+
+
+	 //them Qo vao A_Q_Qo
+	A_Q_Qo.push_back('0');
+
+
+	n = A_Q_Qo.size();
+
+
+	//// execute
+	while (k > 0)
+	{
+		if (A_Q_Qo[n - 2] == '1'&&A_Q_Qo[n - 1] == '0')
+		{
+			number = number - number1;// A=A-Q
+			A = QInt_To_String(number);
+			int m = A.size();
+			A_Q_Qo.replace(0, m, A); 
+		}
+		else if (A_Q_Qo[n - 2] == '0'&&A_Q_Qo[n - 1] == '1')
+		{
+			number = number + number1; // A=A+Q
+			A = QInt_To_String(number);
+			int m = A.size();
+			A_Q_Qo.replace(0, m, A);
+		}
+		dichPhaiString(A_Q_Qo);
+		A = A_Q_Qo.substr(0, MAX + 1); // luu lai gia tri moi cua A 
+		number = String_To_QInt(A);
+		k--;
+	}
+	A_Q_Qo.pop_back();
+	A_Q_Qo = A_Q_Qo.substr(A_Q_Qo.size() - MAX);
+	return String_To_QInt(A_Q_Qo);
+	
+}
+
+//============================== OPERATOR/===============================
+
+
+//=======================================lam theo ham isgin cua tuong
+
+bool IsSign_2(string num)
+{
+	return (num[0] == '1') ? true : false;
+}
+
+void dichTraiString(string &str)
+{
+	int n = str.size();
+	for (int i = 0; i <n-1; i++)
+	{
+		str[i] = str[i + 1];
+	}
+	str[n - 1] = '0';
+}
+
+// Ham lay bu 1
+string bu_1(string a)
+{
+	string tmp;
+	for (int i = 0; i < MAX; i++)
+	{
+		char x = (a[i] == '1') ? '0' : '1';
+		tmp.push_back(x);
+	}
+	return tmp;
 }
 
 
+//Ham lay bu 2
+string bu_2(string a)
+{
+	string dayBu1 = bu_1(a);
+	int soDu = 1;
+	string bu2;
+	for (int i = MAX - 1; i >= 0; i--)
+	{
+		char x;
+		if (dayBu1[i] == '0' && soDu == 1)
+		{
+			x = '1';
+			soDu = 0;
+		}
+		else if (dayBu1[i] == '0'&& soDu == 0)
+		{
+			x = '0';
+			soDu = 0;
+		}
+		else if (dayBu1[i] == '1' && soDu == 0)
+		{
+			x = '1';
+			soDu = 0;
+		}
+		else if (dayBu1[i] == '1'&& soDu == 1)
+		{
+			x = '0';
+			soDu = 1;
+		}
+		bu2.insert(0, 1, x);
+	}
+	return bu2;
+}
+bool kiemTraQInt(string a)  //kiem tra number co phai la so 0 hay khong
+{
+	int n = a.size();
+	for (int i = 0; i < n; i++)
+	{
+		if (a[i] != '0')
+		{
+			return false;
+		}
+	}
+	return true;
+
+}
+
+QInt operator/(QInt number1, QInt number2)
+{
+	string M = QInt_To_String(number2);
+	/*bool la_So_0 = false;
+	if (kiemTraQInt(M) == true)
+	{
+		cout<<"aaaaa" ;
+	}*/
+	string Q = QInt_To_String(number1);
+	bool kiemTra = false;
+	if (IsSign_2(Q) == true && IsSign_2(M) == false) 	
+	{
+		Q = bu_2(Q);
+		number1 = String_To_QInt(Q);
+		kiemTra = true;
+	}
+	else if (IsSign_2(Q) == false && IsSign_2(M) == true)
+	{
+		M = bu_2(M);
+		number2 = String_To_QInt(M);
+		kiemTra = true;
+	}
+	else if (IsSign_2(Q) == true && IsSign_2(M) == true)
+	{
+		M = bu_2(M);
+		Q = bu_2(Q); 
+		number1 = String_To_QInt(Q);
+		number2 = String_To_QInt(M);
+	}
+	string A;
+	int n = Q.size();
+	if (IsSign_2(Q) == false)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			A.push_back('0');
+		}
+	}
+	else
+	{
+		for (int i = 0; i < n; i++)
+		{
+			A.push_back('1');
+		}
+	}
+	int k = n;
+	string A_Q;
+	QInt number;
+	A_Q += A + Q;
+	while(k>0)
+	{
+		dichTraiString(A_Q);
+		A = A_Q.substr(0, n);
+		Q = A_Q.substr(n);
+
+		//A=A-M
+		number = String_To_QInt(A);
+		number = number - number2;
+		A = QInt_To_String(number);
+		if (IsSign_2(A) == true)
+		{
+			Q[n - 1] = '0';
+			number = number + number2;
+			A = QInt_To_String(number);
+		}
+		else
+		{
+			Q[n - 1] = '1';
+		}
+		A_Q.clear();
+		A_Q += A + Q;
+		k--;
+	}
+	Q = A_Q.substr(n);
+
+	if (kiemTra == true)
+	{
+		Q = bu_2(Q);
+	}
+	
+	return String_To_QInt(Q);
+}
+
 int main()
 {
-	string s = "-9223372036854775807";
-	string ss = "9223372036854775807";
+	string s = "-10432534343434332332323246464554740";
+	string ss = "999999";
 
 	QInt number1;
 	QInt number2;
 
 	ScanQInt(number1, s);
-	PrintQInt(number1);
+	//PrintQInt(number1);
 	cout << endl;
 	ScanQInt(number2, ss);
-	PrintQInt(number2);
+	//PrintQInt(number2);
 	cout << endl;
-	QInt x=number1 - number2;
+	QInt x=number1 /number2;
 	PrintQInt(x);
 
 
