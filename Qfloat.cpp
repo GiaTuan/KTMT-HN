@@ -266,7 +266,7 @@ string ChuyenSangNhiPhan(string number)
 
 
 
-void ScanQFloat(QFloat& x, string number)
+void ScanQFloat(QFloat &x, string number)
 {
 	string res;
 	if (IsSign(number) == true)
@@ -279,32 +279,205 @@ void ScanQFloat(QFloat& x, string number)
 		res.push_back('0');
 	}
 	string temp=ChuyenSangNhiPhan(number);
-	cout << temp<<endl;
 	int E = chuanHoaQFloat(temp);
 	E += 16383;
 	string str_E = DecToBin(to_string(E));
-	cout <<"e: "<< str_E << endl;
+	cout << "E: "<<str_E << endl;
 	temp.erase(0, 2);
-	cout << temp << endl;
+	
 	int n = temp.size();
 	if (n < 112)
 	{
 		temp.insert(n, 112 - n, '0');
 	}
 	res = res + str_E + temp;
-	cout << res.size();
-	QFloat ketQua = Arr_To_QFloat(res);
-	for (int i = 0; i < 4; i++)
+	x = Arr_To_QFloat(res);
+
+}
+string QFloat_To_Arr(const QFloat& number)
+{
+	string a;
+	for (int i = 0; i < MAX; i++)
 	{
-		cout << bitset<32>(ketQua.data[i]);
+		if ((number.data[i / 32] >> (32 - 1 - i % 32)) & 1 == 1)
+		{
+			a.push_back('1');
+		}
+		else
+		{
+			a.push_back('0');
+		}
+	}
+	return a;
+}
+string _x_mu_n(int coSo, int soMu)
+{
+	bool soAm = false;
+	if (coSo < 0)
+	{
+		soAm = (soMu % 2 == 0) ? false : true;
+		coSo *= -1;
+	}
+	string res = "1";
+	for (int i = 1; i <= soMu; i++)
+	{
+		res = res * coSo;
+	}
+	if (soAm)
+		res.insert(0, 1, '-');
+
+	return res;
+}
+string operator+(string a, string b)
+{
+	string res = "";
+	canBang2Chuoi(a, b);
+	int len = a.length();
+
+	int tmp = 0;
+	for (int i = len - 1; i >= 0; --i)
+	{
+		tmp = stringToNum(a[i]) + stringToNum(b[i]) + tmp;
+		res.insert(0, 1, numToString(tmp % 10));
+		tmp /= 10;
+	}
+	if (tmp > 0)
+	{
+		res.insert(0, 1, numToString(tmp));
+	}
+	return res;
+}
+
+string operator-(string a, string b)
+{
+	string res = "";
+	canBang2Chuoi(a, b);
+	int len = a.length();
+	int tmp = 0;
+	int soDu = 0;
+	for (int i = len - 1; i >= 0; i--)
+	{
+		if (a[i] >= b[i])
+		{
+			tmp = stringToNum(a[i]) - (stringToNum(b[i]) + soDu);
+			res.insert(0, 1, numToString(tmp));
+			soDu = 0;
+		}
+		else
+		{
+			tmp = (10 + stringToNum(a[i])) - (stringToNum(b[i]) + soDu);
+			res.insert(0, 1, numToString(tmp));
+			soDu = 1;
+		}
+	}
+	res=remove0(res);
+	return res;
+}
+
+
+string BinToDec(string bit)
+{
+	string decNum, tmp;
+
+	for (int i = 0; i < bit.length(); i++)
+	{
+		if (bit[i] == '1')
+		{
+			tmp = _x_mu_n(2, bit.length() - i - 1);
+		}
+		else
+		{
+			tmp = "0";
+		}
+		decNum = decNum + tmp;
+	}
+	return decNum;
+}
+
+//string _1_Chia_N(string)
+//{
+//	return "0."
+//}
+
+void BinToDec_PhanThapPhan(string str)
+{
+	string decNum, tmp;
+
+	for (int i = 0; i < str.length(); i++)
+	{
+		if (str[i] == '1')
+		{
+			tmp = _x_mu_n(2, str.length() - i - 1);
+		}
+		else
+		{
+			tmp = "0";
+		}
+		decNum = decNum + tmp;
 	}
 }
+void xoa_0_Cuoi_String(string &str)
+{
+	int n = str.size();
+	int i;
+	for (i = n - 1; i >= 0; i--)
+	{
+		if (str[i] != '0')
+		{
+			break;
+		}
+	}
+	str.erase(i+1);
+}
+
+void Bin_To_Dec(string arr)
+{
+	string res;
+	if (arr[0] == '1')
+	{
+		res.push_back('-');
+	}
+	arr.erase(0, 1);
+	string E_str;
+	string S;
+
+	E_str = arr.substr(0, 15);
+	S = arr.substr(15);
+
+	string E = BinToDec(E_str);
+	E = E - "16383";
+
+	xoa_0_Cuoi_String(S);
+	string x = "1." + S;
+	int i = x.find_first_of('.');
+	x.erase(i, 1);
+	x.insert(stoi(E)+1, 1, '.');
+	cout << x << endl;
+	string PhanNguyen, PhanThapPhan;
+	tachQFloat(x, PhanNguyen, PhanThapPhan);
+	PhanThapPhan.erase(0, 2);
+	cout << PhanNguyen << " " << PhanThapPhan << endl;
+	PhanNguyen = BinToDec(PhanNguyen);
+	res += PhanNguyen;
+	res += ".";
+	cout << res << endl;
+	
+}
+
+void PrintQfloat(QFloat number)
+{
+	string arr = QFloat_To_Arr(number);
+	Bin_To_Dec(arr);
+	
+}
+
 int main()
 {
 	string s = "8.1";
 	string ss = "-24.3017578125";
 	QFloat a;
 	ScanQFloat(a, ss);
+	PrintQfloat(a);
 	//cout << a << " " << b << endl;
 	system("pause");
 	return 0;
