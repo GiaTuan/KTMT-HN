@@ -1,12 +1,19 @@
 #include <iostream>
 #include <string>
+#include <bitset>
 using namespace std;
 #define MAX 128
 
 typedef struct
 {
-	uint32_t data[4];
+	uint32_t data[4] = { 0 };
 }QFloat;
+
+bool IsSign(string num)
+{
+	return (num[0] == '-') ? true : false;
+}
+
 
 char numToString(int n)     // chuyen so sang char
 {
@@ -197,37 +204,107 @@ string DecToBin_phanThapPhan(string phanThapPhan)
 		}
 		k++;
 	}
-	phanThapPhan = phanThapPhan * 2;
-	len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
-	so1 = Float_1(len_sauDauCham);
-	if (phanThapPhan == so1 || phanThapPhan > so1)
+	if (k == 112)
 	{
-		res=CongBit(res, "1");
+		phanThapPhan = phanThapPhan * 2;
+		len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
+		so1 = Float_1(len_sauDauCham);
+		if (phanThapPhan == so1 || phanThapPhan > so1)
+		{
+			res = CongBit(res, "1");
+		}
 	}
 	return res;
 }
-string DecToBin_QFloat(string bigFloat)
+
+
+void tachQFloat(string bigFloat, string& phanNguyen, string& phanThapPhan)
 {
-	return 0;
+	int len = bigFloat.length();
+	int dauCham = bigFloat.find_first_of('.');
+	phanNguyen.assign(bigFloat, 0, dauCham);
+	phanThapPhan.assign(bigFloat, dauCham, len - phanNguyen.length());//dg co dang (.x)
+	phanThapPhan.insert(0, 1, '0');//dua ve dang (0.x)
 }
 
-void tachFloat(string number, string &phanNguyen, string &phanThapPhan)
+
+int chuanHoaQFloat(string& floatNum)
 {
-	int len = number.size();
-	int dauCham = number.find_first_of('.');
-	phanNguyen.assign(number, 0, dauCham);
-	phanThapPhan.assign(number, dauCham, len-phanNguyen.size());
-	phanThapPhan.insert(0, 1, '0');
+	int exponent;
+	int dauCham = floatNum.find_first_of('.');
+	int so1DauTien = floatNum.find_first_of('1');
+
+	int viTri = (dauCham > so1DauTien) ? so1DauTien + 1 : so1DauTien;
+	floatNum.erase(dauCham, 1);
+	floatNum.insert(viTri, 1, '.');
+	exponent = (dauCham > so1DauTien) ? dauCham - so1DauTien - 1 : dauCham - so1DauTien;
+	return exponent;
+}
+QFloat Arr_To_QFloat(const string& binArr)
+{
+
+	QFloat number;
+	for (int i = 0; i < MAX; i++)
+	{
+		if (binArr[i] == '1')
+		{
+			number.data[i / 32] = number.data[i / 32] | (1 << (32 - 1 - i % 32));
+		}
+	}
+	return number;
+}
+string ChuyenSangNhiPhan(string number)
+{
+	string PhanNguyen, PhanThapPhan;
+	tachQFloat(number, PhanNguyen, PhanThapPhan);
+	PhanNguyen = DecToBin(PhanNguyen);
+	PhanThapPhan = DecToBin_phanThapPhan(PhanThapPhan);
+	string res;
+	res = PhanNguyen + '.' + PhanThapPhan;
+	return res;
 }
 
+
+
+void ScanQFloat(QFloat& x, string number)
+{
+	string res;
+	if (IsSign(number) == true)
+	{
+		res.push_back('1');
+		number.erase(0, 1);
+	}
+	else
+	{
+		res.push_back('0');
+	}
+	string temp=ChuyenSangNhiPhan(number);
+	cout << temp<<endl;
+	int E = chuanHoaQFloat(temp);
+	E += 16383;
+	string str_E = DecToBin(to_string(E));
+	cout <<"e: "<< str_E << endl;
+	temp.erase(0, 2);
+	cout << temp << endl;
+	int n = temp.size();
+	if (n < 112)
+	{
+		temp.insert(n, 112 - n, '0');
+	}
+	res = res + str_E + temp;
+	cout << res.size();
+	QFloat ketQua = Arr_To_QFloat(res);
+	for (int i = 0; i < 4; i++)
+	{
+		cout << bitset<32>(ketQua.data[i]);
+	}
+}
 int main()
 {
-	string s = "3232.1";
-	string a, b;
-	tachFloat(s, a, b);
-	a = DecToBin(a);
-	string c=DecToBin_phanThapPhan(b);
-	cout <<a<<  " " <<c;
+	string s = "8.1";
+	string ss = "-24.3017578125";
+	QFloat a;
+	ScanQFloat(a, ss);
 	//cout << a << " " << b << endl;
 	system("pause");
 	return 0;
