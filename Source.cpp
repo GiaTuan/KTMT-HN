@@ -43,8 +43,6 @@ struct QInt
 	}
 };
 
-//ham khoi tao tat ca cac gia tri trong struct data = 0, nghia la cho tat ca cac bit trong mang la 0
-
 
 // Ham lay bu 1
 string bu1(string a)
@@ -135,8 +133,6 @@ QInt Arr_To_QInt(const string& binArr)
 	}
 	return number;
 }
-
-
 
 //he 10 -> he 2
 string DecToBin(string userInputStr)
@@ -376,10 +372,7 @@ bool operator == (const QInt& N1, const QInt& N2)
 	return IsEqual(N1, N2);
 }
 
-
 //==================================================================================
-
-
 
 // ===================TOAN TU &, |, ^, ~ , << , >>
 QInt operator & (const QInt& a, const QInt& b)
@@ -406,7 +399,6 @@ QInt operator | (const QInt& a, const QInt& b)
 }
 
 
-
 QInt operator ^ (const QInt& a, const QInt& b)
 {
 	QInt res;
@@ -416,7 +408,6 @@ QInt operator ^ (const QInt& a, const QInt& b)
 	}
 	return res;
 }
-
 
 
 QInt operator ~ (const QInt& a)
@@ -442,12 +433,13 @@ string dichPhai(const string& a, int bit)
 	else
 	{
 		char tmp = (IsNegative(a)) ? '1' : '0';
-		for (int i = a.length() - 1; i >= 119; i--)
+		for (int i = a.length() - 1; i >= 0; i--)
 		{
 			char c = (i - bit) < 0 ? tmp : a[i - bit];
 			res.push_back(c);
 		}
 	}
+	res=reverse(res);
 
 	return res;
 }
@@ -465,7 +457,7 @@ string dichTrai(const string& b, int bit)
 	{
 		for (int i = 0; i < b.length(); i++)
 		{
-			char c = (i + bit) > (b.length() - 1) ? 0 : b[i + bit];
+			char c = (i + bit) > (b.length() - 1) ? '0' : b[i + bit];
 			res.push_back(c);
 		}
 	}
@@ -550,8 +542,6 @@ string CongBit(const string& a, const string& b)
 }
 
 
-
-
 /*Phep tru 2 QInt a va b
    a-b=a+(-b)
    a + soBu2(b)*/
@@ -569,7 +559,6 @@ QInt operator + (const QInt& n1, const QInt& n2)
 	res = CongBit(num1, num2);
 	PrintQInt(Arr_To_QInt(res));
 	return Arr_To_QInt(res);
-	
 }
 
 
@@ -581,7 +570,23 @@ QInt operator - (const QInt& n1, const QInt& n2)
 	res = TruBit(num1, num2);
 	return Arr_To_QInt(res);
 }
-
+void dichPhaiString(string &str)
+{
+	bool kiemTra = false;
+	if (str[0] == '1')
+	{
+		kiemTra = true;
+	}
+	int n = str.size();
+	for (int i = n - 1; i >= 1; i--)
+	{
+		str[i] = str[i - 1];
+	}
+	if (kiemTra == true)
+	{
+		str[0] = '1';
+	}
+}
 
 QInt operator * (const QInt& m, const QInt& q)
 {
@@ -589,104 +594,136 @@ QInt operator * (const QInt& m, const QInt& q)
 	string M = QInt_To_Arr(m);
 	string Q = QInt_To_Arr(q);
 	string res;
-	int Q0 = 0;
+	string A_Q_Qo;
 	int k = MAX;
+	A_Q_Qo += A;
+	A_Q_Qo += Q;
+	A_Q_Qo.push_back('0');
+	int n = A_Q_Qo.size();
 	while (k>0)
 	{
-		if ( Q[MAX-1] == '1' && Q0 == 0)
+		if (A_Q_Qo[n - 2] == '1'&&A_Q_Qo[n - 1] == '0')
 		{
-			A=TruBit(A,M);
-			Q0 = 1;
+			A = TruBit(A, M);
+			int m = A.size();
+			A_Q_Qo.replace(0, m, A);
 		}
-		else if (Q[MAX-1] == '0' && Q0 == 1)
+		else if (A_Q_Qo[n - 2] == '0'&&A_Q_Qo[n - 1] == '1')
 		{
-			A = CongBit(A,M);
-			Q0 = 0;
+			A = CongBit(A, M);
+			int m = A.size();
+			A_Q_Qo.replace(0, m, A);
 		}
 
-		//Gop A va Q lai de dich bit
-		string A_Q = A + Q;
-		A_Q = dichPhai(A_Q, 1);//dich phai 1 bit
-
-		//Sau khi gop thi tach A_Q ra lai, nua dau la A, nua sau la Q
-		A.assign(A_Q, 0, MAX);//tach tu 0 den vi tri MAX=128
-		Q.assign(A_Q, MAX, MAX);//tu vi tri 128
-		--k;
+		A_Q_Qo=dichPhai(A_Q_Qo,1);
+		A = A_Q_Qo.substr(0, MAX + 1); // luu lai gia tri moi cua A 
+		k--;
 	}
-	//res = A + Q;
-	
-	//Tinh neu ket qua bi tran
+	A_Q_Qo.pop_back();
+	res = A_Q_Qo.substr(A_Q_Qo.size() - MAX);
+
 	return Arr_To_QInt(Q);
 
 }
 
-
-
-typedef struct
+//================================================/////////////////////
+void operator/(QInt number1, QInt number2)
 {
-	uint32_t data[4];
-}QFloat;
-
-
-int SoPhanTuSauDauCham(string phanThapPhan)
-{
-	int dauCham = phanThapPhan.find_first_of('.');
-	return phanThapPhan.length() - dauCham - 1;
-}
-string Float_1(int n)
-{
-	string res = "1.";
-	for (int i = 0; i < n; i++)
-		res.push_back('0');
-	return res;
-}
-string DecToBin_phanThapPhan(string phanThapPhan)
-{
-	string res;
-	while (1)
+	string M = QInt_To_Arr(number2);
+	
+	//kiem tra so chia co phai la so 0
+	/*bool la_So_0 = false;
+	if (kiemTraQInt(M) == true)
 	{
-		phanThapPhan = phanThapPhan * 2;
-		int len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
-		string so1 = Float_1(len_sauDauCham);
+		cout<<"aaaaa" ;
+	}*/
+	string Q = QInt_To_Arr(number1);
 
-		if (phanThapPhan == so1)
+	//=======================kiem tra dau cua phep chia ====================
+	bool kiemTra = false; // luu dau cua ket qua phep chia
+	if (IsNegative(Q) == true && IsNegative(M) == false)
+	{
+		Q = bu2(Q); // neu la so am thi lay bu 2
+		kiemTra = true;  //ket qua phep chia la so am
+	}
+	else if (IsNegative(Q) == false && IsNegative(M) == true)
+	{
+		M = bu2(M);
+		kiemTra = true;
+	}
+	else if (IsNegative(Q) == true && IsNegative(M) == true)
+	{
+		M = bu2(M);
+		Q = bu2(Q);
+	}
+	cout << "\nM: " << M << endl;
+	cout << "Q: " << Q << endl;
+	//===================================== thuc hien phep chia ========================
+	string A;
+	int n = Q.size();
+	if (IsSign(Q) == false)
+	{
+		A.append( n,'0');
+	}
+	else
+	{
+		
+		A.append( n,'1');
+	}
+
+	cout << "\n" << A;
+
+	int k = n;
+	string A_Q;
+	QInt number;
+	A_Q += A;
+	A_Q+=Q;
+	cout << A_Q.size();
+	while (k > 0)
+	{
+		A_Q=dichTrai(A_Q,1);
+		A = A_Q.substr(0, n);
+		Q = A_Q.substr(n);
+
+		//A=A-M
+		A = TruBit(A, M);
+		if (IsNegative(A) == true)
 		{
-			res.push_back('1');
-			break;
-		}
-		else if (phanThapPhan > so1)
-		{
-			res.push_back('1');
-			int DauCham = phanThapPhan.find_first_of('.');
-			for (int i = 0; i < DauCham; i++)
-				phanThapPhan[i] = '0';
+			Q[n - 1] = '0';
+			A = CongBit(A, M);
 		}
 		else
 		{
-			res.push_back('0');
+			Q[n - 1] = '1';
 		}
+		A_Q.clear();
+		A_Q += A;
+		A_Q+=Q;
+		k--;
 	}
-	return res;
+	Q = A_Q.substr(n);
+
+	if (kiemTra == true)
+	{
+		Q = bu2(Q);
+	}
+	PrintQInt(Arr_To_QInt(Q));
 }
-string DecToBin_QFloat(string bigFloat)
-{
-	return 0;
-}
+
+
 int main()
 {
-	string x = "-12345532432423423";
-	string y = "-12";
+	string x = "10000000000000000000000000";
+	string y = "-25";
 	QInt a, b,c;
 	ScanQInt(a, x);
-	//ScanQInt(b, y);
-	c = 25;
-	PrintQInt(c);
-	/*PrintQInt(a);
-	PrintQInt(b);
-	c=a * b;
-	PrintQInt(c);*/
-	//PrintQInt(b);
-
+	ScanQInt(b, y);
+	a * b;
+	//PrintQInt(c);
+	/*string s = "100001";
+	s = dichPhai(s, 1);
+	cout << s;*/
+	//PrintQInt(c);
 	system("pause");
 	return 0;
 }
