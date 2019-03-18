@@ -264,9 +264,7 @@ string ChuyenSangNhiPhan(string number)
 	return res;
 }
 
-
-
-void ScanQFloat(QFloat &x, string number)
+string Dec_To_Bin(string number)
 {
 	string res;
 	if (IsSign(number) == true)
@@ -278,21 +276,27 @@ void ScanQFloat(QFloat &x, string number)
 	{
 		res.push_back('0');
 	}
-	string temp=ChuyenSangNhiPhan(number);
+	string temp = ChuyenSangNhiPhan(number);
 	int E = chuanHoaQFloat(temp);
 	E += 16383;
 	string str_E = DecToBin(to_string(E));
-	cout << "E: "<<str_E << endl;
+	cout << "E: " << str_E << endl;
 	temp.erase(0, 2);
-	
+
 	int n = temp.size();
 	if (n < 112)
 	{
 		temp.insert(n, 112 - n, '0');
 	}
 	res = res + str_E + temp;
-	x = Arr_To_QFloat(res);
+	return res;
+}
 
+void ScanQFloat(QFloat &x, string number)
+{
+	string res;
+	res = Dec_To_Bin(number);
+	x = Arr_To_QFloat(res);
 }
 string QFloat_To_Arr(const QFloat& number)
 {
@@ -452,7 +456,7 @@ void xoa_0_Cuoi_String(string &str)
 	str.erase(i+1);
 }
 
-void Bin_To_Dec(string arr)
+string Bin_To_Dec(string arr)
 {
 	string res;
 	if (arr[0] == '1')
@@ -476,13 +480,11 @@ void Bin_To_Dec(string arr)
 	//them dau . vao
 	x.insert(stoi(E)+1, 1, '.');
 
-	cout << x << endl;
 	string PhanNguyen, PhanThapPhan;
 	tachQFloat(x, PhanNguyen, PhanThapPhan);
 	
 	// xoa dang 0. cua phan thap phan
 	PhanThapPhan.erase(0, 2);
-	cout << PhanNguyen << " " << PhanThapPhan << endl;
 	
 	//chuyen phan nguyen ve dang thap phan
 	PhanNguyen = BinToDec(PhanNguyen);
@@ -493,14 +495,14 @@ void Bin_To_Dec(string arr)
 	res += PhanNguyen;
 	res += ".";
 	res+=PhanThapPhan;
-	cout << res << endl;
-	
+	return res;
 }
 
 void PrintQfloat(QFloat number)
 {
 	string arr = QFloat_To_Arr(number);
-	Bin_To_Dec(arr);
+	string res=Bin_To_Dec(arr);
+	cout << res;
 	
 }
 
@@ -510,9 +512,13 @@ int main()
 	string ss = "-24.3017578125";
 	QFloat a;
 
-	
+	/*ss=Dec_To_Bin(ss);
+	ss = "11000000000000111000010011010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+	ss=Bin_To_Dec(ss);
+	cout << ss;*/
 
-	ScanQFloat(a, s);
+	ScanQFloat(a, ss);
+
 	PrintQfloat(a);
 	//cout << a << " " << b << endl;
 	system("pause");
