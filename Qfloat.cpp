@@ -394,27 +394,49 @@ string BinToDec(string bit)
 	return decNum;
 }
 
-//string _1_Chia_N(string)
-//{
-//	return "0."
-//}
-
-void BinToDec_PhanThapPhan(string str)
+void canBangHaiChuoi_2(string &a, string &b)
 {
-	string decNum, tmp;
+	int a_len = a.length(), b_len = b.length();
+	if (a_len > b_len)
+	{
+		b.insert(b_len,a_len-b_len, '0');
+	}
+	else
+	{
+		a.insert(a_len,b_len-a_len, '0');
+	}
+}
+string _2_Mu_Tru_N(int n)
+{
+	string res = "1";
+	for (int i = 0; i < n; i++)
+	{
+		res = res * 5;
+	}
+	int len = res.size();
+	n = n - len;
+	if (n > 0)
+	{
+		res.insert(0, n, '0');
+	}
+	return res;
+}
 
-	for (int i = 0; i < str.length(); i++)
+string BinToDec_PhanThapPhan(string str)
+{
+	string tmp, res="0";
+	int n = str.length();
+
+	for (int i = 0; i < n; i++)
 	{
 		if (str[i] == '1')
 		{
-			tmp = _x_mu_n(2, str.length() - i - 1);
+			tmp = _2_Mu_Tru_N(i + 1);
+			canBangHaiChuoi_2(tmp, res);
+			res = res + tmp;
 		}
-		else
-		{
-			tmp = "0";
-		}
-		decNum = decNum + tmp;
 	}
+	return res;
 }
 void xoa_0_Cuoi_String(string &str)
 {
@@ -449,17 +471,28 @@ void Bin_To_Dec(string arr)
 
 	xoa_0_Cuoi_String(S);
 	string x = "1." + S;
-	int i = x.find_first_of('.');
-	x.erase(i, 1);
+	x.erase(1, 1);// xoa dau . 
+
+	//them dau . vao
 	x.insert(stoi(E)+1, 1, '.');
+
 	cout << x << endl;
 	string PhanNguyen, PhanThapPhan;
 	tachQFloat(x, PhanNguyen, PhanThapPhan);
+	
+	// xoa dang 0. cua phan thap phan
 	PhanThapPhan.erase(0, 2);
 	cout << PhanNguyen << " " << PhanThapPhan << endl;
+	
+	//chuyen phan nguyen ve dang thap phan
 	PhanNguyen = BinToDec(PhanNguyen);
+	
+	//chuyen phan thap phan sang dec
+	PhanThapPhan=BinToDec_PhanThapPhan(PhanThapPhan);
+
 	res += PhanNguyen;
 	res += ".";
+	res+=PhanThapPhan;
 	cout << res << endl;
 	
 }
@@ -473,10 +506,13 @@ void PrintQfloat(QFloat number)
 
 int main()
 {
-	string s = "8.1";
+	string s = "-323238.21875";
 	string ss = "-24.3017578125";
 	QFloat a;
-	ScanQFloat(a, ss);
+
+	
+
+	ScanQFloat(a, s);
 	PrintQfloat(a);
 	//cout << a << " " << b << endl;
 	system("pause");
