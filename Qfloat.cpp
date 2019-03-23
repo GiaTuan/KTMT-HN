@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include <bitset>
 using namespace std;
+
 #define MAX 128
 
 typedef struct
@@ -114,7 +114,15 @@ string DecToBin(string userInputStr)
 
 	//Dao chuoi lai
 	binary = reverse(binary);
-	binary = remove0(binary);
+	string so0(binary.size(), '0');
+	if (binary == so0)
+	{
+		binary = "0";
+	}
+	else
+	{
+		binary = remove0(binary);
+	}
 	
 	return binary;
 
@@ -173,51 +181,6 @@ string CongBit(string a,string b)
 	return res;
 }
 
-string DecToBin_phanThapPhan(string phanThapPhan)
-{
-	string res;
-	int k= 0;
-	int len_sauDauCham;
-	string so1;
-	while (k<112)
-	{
-		phanThapPhan = phanThapPhan * 2;
-		len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
-		so1 = Float_1(len_sauDauCham);
-		if (phanThapPhan == so1)
-		{
-			res.push_back('1');
-			break;
-		}
-		else if (phanThapPhan > so1)
-		{
-			res.push_back('1');
-			int DauCham = phanThapPhan.find_first_of('.');
-			for (int i = 0; i < DauCham; i++)
-			{
-				phanThapPhan[i] = '0';
-			}
-		}
-		else
-		{
-			res.push_back('0');
-		}
-		k++;
-	}
-	if (k == 112)
-	{
-		phanThapPhan = phanThapPhan * 2;
-		len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
-		so1 = Float_1(len_sauDauCham);
-		if (phanThapPhan == so1 || phanThapPhan > so1)
-		{
-			res = CongBit(res, "1");
-		}
-	}
-	return res;
-}
-
-
 void tachQFloat(string bigFloat, string& phanNguyen, string& phanThapPhan)
 {
 	int len = bigFloat.length();
@@ -228,18 +191,115 @@ void tachQFloat(string bigFloat, string& phanNguyen, string& phanThapPhan)
 }
 
 
-int chuanHoaQFloat(string& floatNum)
+void chuanHoaQFloat(string &number, int &soMu)
 {
-	int exponent;
-	int dauCham = floatNum.find_first_of('.');
-	int so1DauTien = floatNum.find_first_of('1');
+	string phanNguyen, phanThapPhan;
+	tachQFloat(number, phanNguyen, phanThapPhan);
+	phanNguyen = DecToBin(phanNguyen);
 
-	int viTri = (dauCham > so1DauTien) ? so1DauTien + 1 : so1DauTien;
-	floatNum.erase(dauCham, 1);
-	floatNum.insert(viTri, 1, '.');
-	exponent = (dauCham > so1DauTien) ? dauCham - so1DauTien - 1 : dauCham - so1DauTien;
-	return exponent;
+
+	bool kiemTra = false;
+	bool kiemTra_1 = false; // neu so 1 nam o trong phan thap phan
+	bool flag = false;
+	int n_PhanNguyen = phanNguyen.size();
+
+	int i = 0; // luu so luong chu so sau 1 cua phan nguyen
+	if (phanNguyen[0] == '1')
+	{
+		i = n_PhanNguyen - 1;
+		kiemTra = true;
+		flag = true;
+	}
+	string sub=phanNguyen.substr(n_PhanNguyen - i);
+	
+	string res;
+	res+= sub; // ket qua
+	string tmp;
+	int k = 0 , m = 0; // bien dem 
+	int j = 0; // luu vi tri so 1 dau tien cua phan thap phan
+	int len_sauDauCham;
+	string so1;		// de tao chuoi string = 1 de kiem tra sau khi * 2
+	bool kiemTra_2=false;  // 
+	while (1)
+	{
+		phanThapPhan = phanThapPhan * 2;
+		len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
+		so1 = Float_1(len_sauDauCham);  // tao so 1 
+		if (phanThapPhan == so1)
+		{
+			tmp.push_back('1');
+			break;
+		}
+		else if (phanThapPhan > so1)
+		{
+			if (kiemTra_2 == false)
+			{
+				kiemTra_1 = true;
+			}
+			tmp.push_back('1');
+			int DauCham = phanThapPhan.find_first_of('.');
+			for (int i = 0; i < DauCham; i++)
+			{
+				phanThapPhan[i] = '0';
+			}
+		}
+		else
+		{
+			tmp.push_back('0');
+		}
+
+		k++; // tang k
+		if (kiemTra_2 == false && kiemTra_1 == true)
+		{
+			j = k;
+			kiemTra_2 = true;
+			kiemTra = true;
+		}
+		if (kiemTra == true)
+		{
+			m++;
+		}
+		if (flag == true)
+		{
+			if (m == 112 - i)
+			{
+				break;
+			}
+		}
+		else
+		{
+			if (m == 112 - i + 1)
+			{
+				break;
+			}
+		}
+	}
+
+	if (flag == false)
+	{
+		tmp = remove0(tmp);
+		tmp.erase(0, 1);
+	}
+	res += tmp;
+	if (m+i >= 112)
+	{
+		phanThapPhan = phanThapPhan * 2;
+		len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
+		so1 = Float_1(len_sauDauCham);
+		if (phanThapPhan == so1 || phanThapPhan > so1)
+		{
+			res = CongBit(res, "1");
+		}
+	}
+	string ketQua;
+	soMu = flag == false ? -j : i;
+	ketQua += "1.";
+	ketQua += res;
+	number = ketQua;
 }
+
+
+
 QFloat Arr_To_QFloat(const string& binArr)
 {
 
@@ -253,16 +313,7 @@ QFloat Arr_To_QFloat(const string& binArr)
 	}
 	return number;
 }
-string ChuyenSangNhiPhan(string number)
-{
-	string PhanNguyen, PhanThapPhan;
-	tachQFloat(number, PhanNguyen, PhanThapPhan);
-	PhanNguyen = DecToBin(PhanNguyen);
-	PhanThapPhan = DecToBin_phanThapPhan(PhanThapPhan);
-	string res;
-	res = PhanNguyen + '.' + PhanThapPhan;
-	return res;
-}
+
 
 string Dec_To_Bin(string number)
 {
@@ -276,19 +327,22 @@ string Dec_To_Bin(string number)
 	{
 		res.push_back('0');
 	}
-	string temp = ChuyenSangNhiPhan(number);
-	int E = chuanHoaQFloat(temp);
+	int E;
+	chuanHoaQFloat(number,E);
 	E += 16383;
 	string str_E = DecToBin(to_string(E));
-	cout << "E: " << str_E << endl;
-	temp.erase(0, 2);
+	if (str_E.size() < 15)
+	{
+		str_E.insert(0, 1, '0');
+	}
+	number.erase(0, 2);
 
-	int n = temp.size();
+	int n = number.size();
 	if (n < 112)
 	{
-		temp.insert(n, 112 - n, '0');
+		number.insert(n, 112 - n, '0');
 	}
-	res = res + str_E + temp;
+	res = res + str_E + number;
 	return res;
 }
 
@@ -383,17 +437,24 @@ string BinToDec(string bit)
 {
 	string decNum, tmp;
 
-	for (int i = 0; i < bit.length(); i++)
+	if (bit == "0")
 	{
-		if (bit[i] == '1')
+		decNum = "0";
+	}
+	else
+	{
+		for (int i = 0; i < bit.length(); i++)
 		{
-			tmp = _x_mu_n(2, bit.length() - i - 1);
+			if (bit[i] == '1')
+			{
+				tmp = _x_mu_n(2, bit.length() - i - 1);
+			}
+			else
+			{
+				tmp = "0";
+			}
+			decNum = decNum + tmp;
 		}
-		else
-		{
-			tmp = "0";
-		}
-		decNum = decNum + tmp;
 	}
 	return decNum;
 }
@@ -471,14 +532,32 @@ string Bin_To_Dec(string arr)
 	S = arr.substr(15);
 
 	string E = BinToDec(E_str);
-	E = E - "16383";
+	if (E > "16383")
+	{
+		E = E - "16383";
+	}
+	else
+	{
+		E = "16383" - E;
+		E.insert(0, 1, '-');
+	}
 
 	xoa_0_Cuoi_String(S);
 	string x = "1." + S;
 	x.erase(1, 1);// xoa dau . 
 
 	//them dau . vao
-	x.insert(stoi(E)+1, 1, '.');
+	int doDoi = stoi(E);
+	if (doDoi > 0)
+	{
+		x.insert(doDoi + 1, 1, '.');
+	}
+	else
+	{
+		x.insert(0, abs(doDoi), '0');
+		x.insert(1, 1, '.');
+
+	}
 
 	string PhanNguyen, PhanThapPhan;
 	tachQFloat(x, PhanNguyen, PhanThapPhan);
@@ -505,22 +584,12 @@ void PrintQfloat(QFloat number)
 	cout << res;
 	
 }
-
 int main()
 {
-	string s = "-323238.21875";
-	string ss = "-24.3017578125";
+	string ss = "1999.00001";
 	QFloat a;
-
-	/*ss=Dec_To_Bin(ss);
-	ss = "11000000000000111000010011010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-	ss=Bin_To_Dec(ss);
-	cout << ss;*/
-
 	ScanQFloat(a, ss);
-
-	PrintQfloat(a);
-	//cout << a << " " << b << endl;
+	PrintQfloat(a),
 	system("pause");
 	return 0;
 }
