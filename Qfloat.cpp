@@ -197,7 +197,6 @@ void chuanHoaQFloat(string &number, int &soMu)
 	tachQFloat(number, phanNguyen, phanThapPhan);
 	phanNguyen = DecToBin(phanNguyen);
 
-
 	bool kiemTra = false;
 	bool kiemTra_1 = false; // neu so 1 nam o trong phan thap phan
 	bool flag = false;
@@ -275,10 +274,18 @@ void chuanHoaQFloat(string &number, int &soMu)
 		}
 	}
 
-	if (flag == false)
+	if (kiemTra_1 == false && flag == false)
 	{
-		tmp = remove0(tmp);
-		tmp.erase(0, 1);
+		j = tmp.size();
+		tmp = "0";
+	}
+	else
+	{
+		if (flag == false)
+		{
+			tmp = remove0(tmp);
+			tmp.erase(0, 1);
+		}
 	}
 	res += tmp;
 	if (m+i >= 112)
@@ -350,6 +357,7 @@ void ScanQFloat(QFloat &x, string number)
 {
 	string res;
 	res = Dec_To_Bin(number);
+	cout << res << endl;
 	x = Arr_To_QFloat(res);
 }
 string QFloat_To_Arr(const QFloat& number)
@@ -586,10 +594,10 @@ void PrintQfloat(QFloat number)
 }
 int main()
 {
-	string ss = "1999.00001";
+	string ss = "10000.5";
 	QFloat a;
 	ScanQFloat(a, ss);
-	PrintQfloat(a),
+	PrintQfloat(a);
 	system("pause");
 	return 0;
 }
