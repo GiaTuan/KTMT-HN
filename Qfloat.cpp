@@ -210,7 +210,7 @@ void chuanHoaQFloat(string &number, int &soMu)
 		{
 			phanThapPhan = CongBit(phanThapPhan, "1");
 		}
-		soMu = 112;
+		soMu = n_PhanNguyen - 1;
 		number = "1.";
 		number += phanThapPhan;
 	}
@@ -631,7 +631,10 @@ void PrintQfloat(QFloat number)
 
 int main()
 {
-	string s ="-945083490583940583904.01";
+	//string s = "-89438498492384923849.01";
+	string s =_x_mu_n(2,16383);
+	s.insert(0, 1, '-');
+	//cout << s;
 	QFloat a;
 	ScanQFloat(a, s);
 	PrintQfloat(a);
