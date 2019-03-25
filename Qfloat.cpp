@@ -195,134 +195,153 @@ void chuanHoaQFloat(string &number, int &soMu)
 {
 	string phanNguyen, phanThapPhan;
 	tachQFloat(number, phanNguyen, phanThapPhan);
-	phanNguyen = DecToBin(phanNguyen);
 
-	bool kiemTra = false; // kiem tra dung de dem du 112 so
-	bool kiemTra_1 = false; // neu so 1 nam o trong phan thap phan
-	bool flag = false; // kiem tra neu so 1 nam o phan nguyen
-	int n_PhanNguyen = phanNguyen.size();
-
-	// neu n_PhanNguyen >112
-	if (n_PhanNguyen > 112)
+	//truong hop la so 0.0
+	if (phanNguyen == "0"&& phanThapPhan == "0.0")
 	{
-		phanThapPhan = phanNguyen.substr(1, 112);
-		if (phanNguyen[113] == '1')
-		{
-			phanThapPhan = CongBit(phanThapPhan, "1");
-		}
-		soMu = n_PhanNguyen - 1;
-		number = "1.";
-		number += phanThapPhan;
+		number ="0.";
+		number.insert(2, 112, '0');
+		soMu = -16383;
 	}
-
-	// neu n_PhanNguyen # 112
 	else
 	{
-		int i = 0; // luu so luong chu so sau 1 cua phan nguyen
-		if (phanNguyen[0] == '1')
+		phanNguyen = DecToBin(phanNguyen);
+
+		bool kiemTra = false; // kiểm tra đếm đủ 112 số sau số 1.
+		bool kiemTra_1 = false; // kiếm tra nếu số 1 đầu tiên nằm ở trong phần thập phân
+		bool flag = false; // kiếm tra nếu số 1 đầu tiên nằm ở trong phần nguyên
+		int n_PhanNguyen = phanNguyen.size();
+
+		// neu n_PhanNguyen >112 
+		if (n_PhanNguyen > 112)
 		{
-			i = n_PhanNguyen - 1;
-			kiemTra = true;
-			flag = true;
-		}
-		string sub = phanNguyen.substr(n_PhanNguyen - i); // tao mang con sau so 1 de noi voi day so thap phan
-
-		string res;// ket qua
-		res += sub;
-
-		string tmp;  // bien tam de luu gia tri phan thap phan sau khi chuyen sang nhi phan
-		int k = 0, m = 0; // bien dem 
-		int j = 0; // luu vi tri so 1 dau tien cua phan thap phan
-		int len_sauDauCham;
-		string so1;		// de tao chuoi string = 1 de kiem tra sau khi * 2
-		bool kiemTra_2 = false;  // 
-		while (1)
-		{
-			phanThapPhan = phanThapPhan * 2;
-			len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
-			so1 = Float_1(len_sauDauCham);  // tao so 1 
-			if (phanThapPhan == so1)
+			phanThapPhan = phanNguyen.substr(1, 112);
+			if (phanNguyen[113] == '1')
 			{
-				tmp.push_back('1');
-				break;
+				phanThapPhan = CongBit(phanThapPhan, "1");
 			}
-			else if (phanThapPhan > so1)
-			{
-				if (kiemTra_2 == false)
-				{
-					kiemTra_1 = true;
-				}
-				tmp.push_back('1');
-				int DauCham = phanThapPhan.find_first_of('.');
-				for (int i = 0; i < DauCham; i++)
-				{
-					phanThapPhan[i] = '0';
-				}
-			}
-			else
-			{
-				tmp.push_back('0');
-			}
-
-			k++; // tang k
-			if (kiemTra_2 == false && kiemTra_1 == true)
-			{
-				j = k;
-				kiemTra_2 = true;
-				kiemTra = true;
-			}
-			if (kiemTra == true)
-			{
-				m++;
-			}
-			if (flag == true)
-			{
-				if (m == 112 - i)
-				{
-					break;
-				}
-			}
-			else
-			{
-				if (m == 112 - i + 1)
-				{
-					break;
-				}
-			}
+			soMu = n_PhanNguyen - 1;
+			number = "1.";
+			number += phanThapPhan;
 		}
 
-		if (kiemTra_1 == false && flag == false)
-		{
-			j = tmp.size();
-			tmp = "0";
-		}
+		// neu n_PhanNguyen <= 112
 		else
 		{
-			if (flag == false)
+			int i = 0; // lưu số lượng số sau số 1 của phần nguyên
+			if (phanNguyen[0] == '1')
 			{
-				tmp = remove0(tmp);
-				tmp.erase(0, 1);
+				i = n_PhanNguyen - 1;
+				kiemTra = true;
+				flag = true;
 			}
-		}
-		res += tmp;
-		if (m + i >= 112)
-		{
-			phanThapPhan = phanThapPhan * 2;
-			len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
-			so1 = Float_1(len_sauDauCham);
-			if (phanThapPhan == so1 || phanThapPhan > so1)
+			string sub = phanNguyen.substr(n_PhanNguyen - i); // tạo mảng con sau số 1 của phần nguyên để nối tiêp phần thập phân
+
+			string res;// lưu kết quả
+			res += sub; 
+
+			string tmp;  // bien tam de luu gia tri phan thap phan sau khi chuyen sang nhi phan
+			int k = 0, m = 0; // bien dem 
+			int j = 0; // luu vi tri so 1 dau tien cua phan thap phan
+			int len_sauDauCham;
+			string so1;		// de tao chuoi string = 1 de kiem tra sau khi * 2
+			bool kiemTra_2 = false;  // kiểm tra nếu phần thập phân có chữ số 1 ĐẦU TIÊN
+			while (1)
 			{
-				res = CongBit(res, "1");
+				phanThapPhan = phanThapPhan * 2;
+				len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
+				so1 = Float_1(len_sauDauCham);  // tao so 1 
+				if (phanThapPhan == so1)
+				{
+					tmp.push_back('1');
+					break;
+				}
+				else if (phanThapPhan > so1)
+				{
+					if (kiemTra_2 == false)
+					{
+						kiemTra_1 = true;
+					}
+					tmp.push_back('1');
+					int DauCham = phanThapPhan.find_first_of('.');
+					for (int i = 0; i < DauCham; i++)
+					{
+						phanThapPhan[i] = '0';
+					}
+				}
+				else
+				{
+					tmp.push_back('0');
+				}
+
+				k++; // tang k
+				if (kiemTra_2 == false && kiemTra_1 == true)
+				{
+					j = k; //lưu lại vị trí sô 1 ĐẦU TIÊN 
+					kiemTra_2 = true;
+					kiemTra = true;
+				}
+				if (kiemTra == true)
+				{
+					m++; // tăng biến m cho đủ 112 phần tử sau 1.
+				}
+				if (flag == true)
+				{
+					if (m == 112 - i)
+					{
+						break;
+					}
+				}
+				else
+				{
+					if (m == 112 - i + 1)
+					{
+						break;
+					}
+				}
 			}
+
+			//nếu chữ số 1 đầu tiên là số nhân thành 1.0 
+			//và kết thúc việc chuyển đổi sang nhị phân của phần thập phân
+			//và phần nguyên không có số 1
+			if (kiemTra_1 == false && flag == false)
+			{	
+				j = tmp.size();
+				tmp = "0";
+			}
+			else
+			{
+				if (flag == false)   // nếu vị trí số 1 ĐẦU TIÊN nằm trong phần thập phân
+				{
+					// xóa vị trí các số 0 đầu tiên của phần thập phân
+					tmp = remove0(tmp); 
+					//xóa số 1 đầu tiên
+					tmp.erase(0, 1);
+				}
+			}
+
+			// kết quả = chuỗi sau số 1 của phần nguyên + phần thập phân
+			res += tmp;
+
+			//nếu là số nhân 2 ra vô hạn thì kiểm tra phần tử thứ 113 nếu là số 1 thì cộng 1 vào kết quả
+			if (m + i >= 112)
+			{
+				phanThapPhan = phanThapPhan * 2;
+				len_sauDauCham = SoPhanTuSauDauCham(phanThapPhan);
+				so1 = Float_1(len_sauDauCham);
+				if (phanThapPhan == so1 || phanThapPhan > so1)
+				{
+					res = CongBit(res, "1");
+				}
+			}
+			string ketQua;
+			soMu = flag == false ? -j : i;
+			ketQua += "1.";
+			ketQua += res;
+			number = ketQua;
 		}
-		string ketQua;
-		soMu = flag == false ? -j : i;
-		ketQua += "1.";
-		ketQua += res;
-		number = ketQua;
 	}
 }
-
 
 
 QFloat Arr_To_QFloat(const string& binArr)
@@ -358,7 +377,7 @@ string Dec_To_Bin(string number)
 	string str_E = DecToBin(to_string(E));
 	if (str_E.size() < 15)
 	{
-		str_E.insert(0, 1, '0');
+		str_E.insert(0,15-str_E.size(), '0');
 	}
 	number.erase(0, 2);
 
@@ -550,75 +569,83 @@ void xoa_0_Cuoi_String(string &str)
 
 string Bin_To_Dec(string arr)
 {
-	string res;
-	if (arr[0] == '1')
+	string str(128, '0'); // dung de so sanh neu 128 bit la so 0 thi tra ve so 0.0
+	if (arr == str)
 	{
-		res.push_back('-');
-	}
-	arr.erase(0, 1);
-	string E_str;
-	string S;
-
-	E_str = arr.substr(0, 15);
-	S = arr.substr(15);
-
-	string E = BinToDec(E_str);
-	if (E > "16383")
-	{
-		E = E - "16383";
+		return "0.0";
 	}
 	else
 	{
-		E = "16383" - E;
-		E.insert(0, 1, '-');
-	}
-
-	xoa_0_Cuoi_String(S);
-	string x = "1." + S;
-	x.erase(1, 1);// xoa dau . 
-
-	//them dau . vao
-	int doDoi = stoi(E);
-	if (doDoi >= 0)
-	{
-		if (x.size() == 1)
+		string res;
+		if (arr[0] == '1')
 		{
-			x.insert(1, doDoi, '0');
-			x += ".0";
+			res.push_back('-');
 		}
-		else if (doDoi > x.size())
+		arr.erase(0, 1);
+		string E_str;
+		string S;
+
+		E_str = arr.substr(0, 15);
+		S = arr.substr(15);
+
+		string E = BinToDec(E_str);
+		if (E > "16383")
 		{
-			x.insert(x.size(), doDoi - x.size()+1, '0');
-			x += ".0";
+			E = E - "16383";
 		}
-		else { x.insert(doDoi + 1, 1, '.'); }
-	}
-	else
-	{
-		x.insert(0, abs(doDoi), '0');
-		x.insert(1, 1, '.');
+		else
+		{
+			E = "16383" - E;
+			E.insert(0, 1, '-');
+		}
 
-	}
-	if(x[x.size()-1]=='.')
-	{
-		x += "0";
-	}
-	string PhanNguyen, PhanThapPhan;
-	tachQFloat(x, PhanNguyen, PhanThapPhan);
-	
-	// xoa dang 0. cua phan thap phan
-	PhanThapPhan.erase(0, 2);
-	
-	//chuyen phan nguyen ve dang thap phan
-	PhanNguyen = BinToDec(PhanNguyen);
-	
-	//chuyen phan thap phan sang dec
-	PhanThapPhan=BinToDec_PhanThapPhan(PhanThapPhan);
+		xoa_0_Cuoi_String(S);
+		string x = "1." + S;
+		x.erase(1, 1);// xoa dau . 
 
-	res += PhanNguyen;
-	res += ".";
-	res+=PhanThapPhan;
-	return res;
+		//them dau . vao
+		int doDoi = stoi(E);
+		if (doDoi >= 0)
+		{
+			if (x.size() == 1)
+			{
+				x.insert(1, doDoi, '0');
+				x += ".0";
+			}
+			else if (doDoi > x.size())
+			{
+				x.insert(x.size(), doDoi - x.size() + 1, '0');
+				x += ".0";
+			}
+			else { x.insert(doDoi + 1, 1, '.'); }
+		}
+		else
+		{
+			x.insert(0, abs(doDoi), '0');
+			x.insert(1, 1, '.');
+
+		}
+		if (x[x.size() - 1] == '.')
+		{
+			x += "0";
+		}
+		string PhanNguyen, PhanThapPhan;
+		tachQFloat(x, PhanNguyen, PhanThapPhan);
+
+		// xoa dang 0. cua phan thap phan
+		PhanThapPhan.erase(0, 2);
+
+		//chuyen phan nguyen ve dang thap phan
+		PhanNguyen = BinToDec(PhanNguyen);
+
+		//chuyen phan thap phan sang dec
+		PhanThapPhan = BinToDec_PhanThapPhan(PhanThapPhan);
+
+		res += PhanNguyen;
+		res += ".";
+		res += PhanThapPhan;
+		return res;
+	}
 }
 
 void PrintQfloat(QFloat number)
@@ -631,14 +658,19 @@ void PrintQfloat(QFloat number)
 
 int main()
 {
-	//string s = "-89438498492384923849.01";
-	string s =_x_mu_n(2,16383);
-	s.insert(0, 1, '-');
-	//cout << s;
+
+	string x = _2_Mu_Tru_N(16000);
+	string s = "0.";
+	s += x;
 	QFloat a;
 	ScanQFloat(a, s);
 	PrintQfloat(a);
 
+
+	/*string s = "-0.000000000000009999999999999999999999999999999999865508651917263353399668555774326552838997055811795632036486902377635070660044647183894994668662548065185546875";
+	QFloat a;
+	ScanQFloat(a, s);
+	PrintQfloat(a);*/
 	system("pause");
 	return 0;
 }
